@@ -85,21 +85,17 @@
 		<!-- CoreProtect -->
 		<repository>
 			<id>coreprotect-repo</id>
-			<url>http://maven.playpro.com/</url>
+			<url>https://maven.playpro.com/</url>
 		</repository>
 		<!-- WorldEdit -->
 		<repository>
 			<id>enginehub</id>
 			<url>https://maven.enginehub.org/repo/</url>
 		</repository>
-		<!-- PlotSquared -->
 		<repository>
-			<id>IntellectualSites</id>
-			<url>https://mvn.intellectualsites.com/content/groups/public/</url>
-		</repository>
-		<repository>
-			<id>jeff-media-repo</id>
-			<url>https://repo.jeff-media.de/maven2</url>
+			<id>jeff-media-public</id>
+			<name>JEFF Media GbR Repository</name>
+			<url>https://repo.jeff-media.com/public</url>
 		</repository>
 		<repository>
 			<id>pcgf-repo</id>
@@ -114,16 +110,32 @@
 			<url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
 		</repository>
 		<repository>
+			<id>papermc</id>
+			<url>https://repo.papermc.io/repository/maven-public/</url>
+		</repository>
+		<repository>
 			<id>jitpack-repo</id>
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.intellectualsites.bom</groupId>
+				<artifactId>bom-newest</artifactId>
+				<version>1.52</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.bstats</groupId>
 			<artifactId>bstats-bukkit</artifactId>
-			<version>1.7</version>
+			<version>3.0.2</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -169,21 +181,6 @@
 			<scope>provided</scope>
 		</dependency>-->
 		<dependency>
-			<groupId>me.vagdedes</groupId>
-			<artifactId>spartan</artifactId>
-			<version>Universal</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/SpartanAPI.jar</systemPath>
-		</dependency>
-		<!-- PlotSquared API -->
-		<dependency>
-			<groupId>com.github.intellectualsites</groupId>
-			<artifactId>plotsquared</artifactId>
-			<version>4.4.495</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/PlotSquared-Bukkit-4.4.495.jar</systemPath>
-		</dependency>
-		<dependency>
 			<groupId>com.jeff_media</groupId>
 			<artifactId>SpigotUpdateChecker</artifactId>
 			<version>2.1.1</version>
@@ -192,22 +189,22 @@
 		<dependency>
 			<groupId>de.jeff_media</groupId>
 			<artifactId>ChestSortAPI</artifactId>
-			<version>11.0.0-SNAPSHOT</version>
+			<version>12.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.plotsquared</groupId>
-			<artifactId>PlotSquared-Bukkit</artifactId>
-			<version>5.11.1</version>
+			<groupId>com.intellectualsites.plotsquared</groupId>
+			<artifactId>plotsquared-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.intellectualsites.plotsquared</groupId>
+			<artifactId>plotsquared-bukkit</artifactId>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
-					<groupId>com.destroystokyo.paper</groupId>
-					<artifactId>paper-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.github.MilkBowl</groupId>
-					<artifactId>VaultAPI</artifactId>
+					<artifactId>plotsquared-core</artifactId>
+					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>

@@ -1,6 +1,5 @@
 package de.jeff_media.InvUnload.Hooks;
 
-import com.plotsquared.bukkit.util.BukkitUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -8,8 +7,6 @@ import org.bukkit.entity.Player;
 
 import de.jeff_media.InvUnload.Main;
 import org.bukkit.plugin.Plugin;
-
-import java.lang.reflect.Method;
 
 public class PlotSquaredHook {
 	
@@ -28,23 +25,6 @@ public class PlotSquaredHook {
 		} catch(Exception ignored) {
 
 		}
-		try {
-			Class.forName("com.github.intellectualsites.plotsquared.bukkit.util.BukkitUtil");
-			hook = new PlotSquared4Hook();
-			main.getLogger().info("Successfully hooked into PlotSquared v4");
-			return;
-		} catch(ClassNotFoundException ignored) {
-
-		}
-		try {
-			Class.forName("com.plotsquared.bukkit.util.BukkitUtil");
-			hook = new PlotSquared5Hook();
-			main.getLogger().info("Successfully hooked into PlotSquared v5");
-			return;
-		} catch(ClassNotFoundException ignored) {
-
-		}
-
 		Plugin plotSquared = Bukkit.getPluginManager().getPlugin("PlotSquared");
 		if(plotSquared != null) {
 			main.getLogger().warning("Could not hook into PlotSquared although it is installed (version " + plotSquared.getDescription().getVersion()+")");
