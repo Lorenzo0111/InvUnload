@@ -139,9 +139,9 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot-api</artifactId>
-			<version>1.21.3-R0.1-SNAPSHOT</version>
+			<groupId>io.papermc.paper</groupId>
+			<artifactId>paper-api</artifactId>
+			<version>1.21.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -207,6 +207,13 @@
 					<groupId>*</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.ssomar.score</groupId>
+			<artifactId>SCore</artifactId>
+			<version>4.24.1.15</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/SCore.jar</systemPath>
 		</dependency>
 	</dependencies>
 

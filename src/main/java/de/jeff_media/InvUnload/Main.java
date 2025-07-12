@@ -64,6 +64,7 @@ public class Main extends JavaPlugin implements Listener {
 	private double updateCheckInterval = 4;
 	HashMap<UUID, PlayerSetting> playerSettings;
 	private ItemsAdderWrapper itemsAdderWrapper;
+	private ExecutableItemsWrapper executableItemsWrapper;
 
 	public static Main getInstance() {
 		return instance;
@@ -77,6 +78,16 @@ public class Main extends JavaPlugin implements Listener {
 
 		return itemsAdderWrapper;
 	}
+
+	public ExecutableItemsWrapper getExecutableItemsWrapper() {
+		if (executableItemsWrapper == null) {
+
+			executableItemsWrapper = ExecutableItemsWrapper.init(this);
+		}
+
+		return executableItemsWrapper;
+	}
+
 
 	@Override
 	public void onDisable() {

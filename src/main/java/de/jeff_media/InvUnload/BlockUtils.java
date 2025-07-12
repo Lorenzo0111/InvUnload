@@ -1,5 +1,6 @@
 package de.jeff_media.InvUnload;
 
+import de.jeff_media.InvUnload.Hooks.ExecutableItemsWrapper;
 import de.jeff_media.InvUnload.Hooks.ItemsAdderWrapper;
 import com.jeff_media.jefflib.EnumUtils;
 import org.bukkit.*;
@@ -23,126 +24,158 @@ import java.util.stream.Collectors;
 
 public class BlockUtils {
 
-	private static final EnumSet<Material> CONTAINER_TYPES;
-	private static final List<String> CONTAINER_NAMES = Arrays.asList("(.*)BARREL$", "(.*)CHEST$", "^SHULKER_BOX$", "^(.*)_SHULKER_BOX$");
+    private static final EnumSet<Material> CONTAINER_TYPES;
+    private static final List<String> CONTAINER_NAMES = Arrays.asList("(.*)BARREL$", "(.*)CHEST$", "^SHULKER_BOX$", "^(.*)_SHULKER_BOX$");
 
-	static {
-		CONTAINER_TYPES = EnumUtils.getEnumsFromRegexList(Material.class, CONTAINER_NAMES);
-	}
-	
-	final Main main;
-	
-	BlockUtils(Main main) {
-		this.main=main;
-	}
-	
-	static List<Block> findBlocksInRadius(Location loc, int radius) {
-		BoundingBox box = BoundingBox.of(loc,radius,radius,radius);
-		//List<BlockVector> blocks = de.jeff_media.jefflib.BlockUtils.getBlocks(loc.getWorld(), box, true, blockData -> isChestLikeBlock(blockData.getMaterial()));
-		List<Chunk> chunks = com.jeff_media.jefflib.BlockUtils.getChunks(loc.getWorld(), box,true);
-		List<Block> blocks = new ArrayList<>();
-		for(Chunk chunk : chunks) {
-			for(BlockState state : chunk.getTileEntities()) {
-				if(state instanceof Container && isChestLikeBlock(state.getType())) {
-					if(state.getLocation().distanceSquared(loc) <= radius*radius) {
+    static {
+        CONTAINER_TYPES = EnumUtils.getEnumsFromRegexList(Material.class, CONTAINER_NAMES);
+    }
 
-						// Only chests that can be opened
-						if(Main.getInstance().getConfig().getBoolean("ignore-blocked-chests",false)) {
-							Block above = state.getBlock().getRelative(BlockFace.UP);
-							if(state.getType() == Material.CHEST && above.getType().isSolid() && above.getType().isOccluding()) {
-								continue;
-							}
-						}
+    final Main main;
 
-						blocks.add(state.getBlock());
-					}
-				}
-			}
-		}
-		return blocks;
-	}
-	
-	static List<Block> findChestsInRadius(Location loc, int radius) {
-		// Todo
-		return findBlocksInRadius(loc, radius);
-	}
+    BlockUtils(Main main) {
+        this.main = main;
+    }
 
-	public static boolean isChestLikeBlock(Material material) {
-		return CONTAINER_TYPES.contains(material);
-	}
+    static List<Block> findBlocksInRadius(Location loc, int radius) {
+        BoundingBox box = BoundingBox.of(loc, radius, radius, radius);
+        //List<BlockVector> blocks = de.jeff_media.jefflib.BlockUtils.getBlocks(loc.getWorld(), box, true, blockData -> isChestLikeBlock(blockData.getMaterial()));
+        List<Chunk> chunks = com.jeff_media.jefflib.BlockUtils.getChunks(loc.getWorld(), box, true);
+        List<Block> blocks = new ArrayList<>();
+        for (Chunk chunk : chunks) {
+            for (BlockState state : chunk.getTileEntities()) {
+                if (state instanceof Container && isChestLikeBlock(state.getType())) {
+                    if (state.getLocation().distanceSquared(loc) <= radius * radius) {
 
-	static boolean doesChestContain(Inventory inv, ItemStack item) {
-		Main main = Main.getInstance();
-		ItemsAdderWrapper itemsAdder = main.getItemsAdderWrapper();
-		boolean useItemsAdder = main.getConfig().getBoolean("use-itemsadder");
-		for (ItemStack otherItem : inv.getContents()) {
-			if (otherItem == null) continue;
-			if (otherItem.getType() == item.getType()) {
+                        // Only chests that can be opened
+                        if (Main.getInstance().getConfig().getBoolean("ignore-blocked-chests", false)) {
+                            Block above = state.getBlock().getRelative(BlockFace.UP);
+                            if (state.getType() == Material.CHEST && above.getType().isSolid() && above.getType().isOccluding()) {
+                                continue;
+                            }
+                        }
 
-				if(!main.getEnchantmentUtils().hasMatchingEnchantments(item,otherItem)) continue;
+                        blocks.add(state.getBlock());
+                    }
+                }
+            }
+        }
+        return blocks;
+    }
 
-				if (!useItemsAdder) return true;
+    static List<Block> findChestsInRadius(Location loc, int radius) {
+        // Todo
+        return findBlocksInRadius(loc, radius);
+    }
 
-				// Item ist NOT ItemsAdder item
-				if (!itemsAdder.isItemsAdderItem(item)) {
+    public static boolean isChestLikeBlock(Material material) {
+        return CONTAINER_TYPES.contains(material);
+    }
 
-					// Only return true if otherItem also is NOT ItemsAdder item
-					if (itemsAdder.isItemsAdderItem(otherItem)) {
-						continue;
-					} else {
-						return true;
-					}
-				}
+    static boolean doesChestContain(Inventory inv, ItemStack item) {
+        Main main = Main.getInstance();
+        ItemsAdderWrapper itemsAdder = main.getItemsAdderWrapper();
+        ExecutableItemsWrapper executableItems = main.getExecutableItemsWrapper();
+        boolean useItemsAdder = main.getConfig().getBoolean("use-itemsadder");
+        boolean useExecutableItems = main.getConfig().getBoolean("use-executable-items");
+        for (ItemStack otherItem : inv.getContents()) {
+            if (otherItem == null) continue;
+            if (otherItem.getType() == item.getType()) {
 
-				// Item IS ItemsAdder item
-				else {
-					// But other Item is not
-					if (!itemsAdder.isItemsAdderItem(otherItem)) {
-						continue;
-					}
-					// Both are ItemsAdder items
-					else {
-						if (itemsAdder.getItemsAdderName(item).equals(itemsAdder.getItemsAdderName(otherItem))) {
-							return true;
-						} else {
-							continue;
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
+                if (!main.getEnchantmentUtils().hasMatchingEnchantments(item, otherItem)) continue;
 
-	static void sortBlockListByDistance(List<Block> blocks, Location loc) {
-		blocks.sort((b1, b2)->{
-			if (b1.getLocation().distance(loc) > b2.getLocation().distance(loc)) {
-				return 1;
-			}
-			return -1;
-		});
-	}
-	
-	static Location getCenterOfBlock(Block block) {
-		Location loc = block.getLocation();
-		if(block.getState() instanceof Chest
-				&& ((Chest)block.getState()).getInventory().getHolder() instanceof DoubleChest) {
-			DoubleChest doubleChest = (DoubleChest) ((Chest)block.getState()).getInventory().getHolder();
-			DoubleChestInventory doubleChestInv = (DoubleChestInventory) doubleChest.getInventory();
-			loc = doubleChestInv.getLeftSide().getLocation().add(doubleChestInv.getRightSide().getLocation()).multiply(0.5);
-		}
-		loc.add(new Vector(0.5,1,0.5));
-		return loc;
-	}
+                if (useItemsAdder) {
 
-	static int doesChestContainCount(Inventory inv, Material mat) {
-		int count = 0;
-		for(ItemStack item : inv.getContents()) {
-			if(item==null) continue;
-			if(item.getType() == mat) {
-				count += item.getAmount();
-			}
-		}
-		return count;
-	}
+                    // Item ist NOT ItemsAdder item
+                    if (!itemsAdder.isItemsAdderItem(item)) {
+
+                        // Only return true if otherItem also is NOT ItemsAdder item
+                        if (itemsAdder.isItemsAdderItem(otherItem)) {
+                            continue;
+                        } else {
+                            return true;
+                        }
+                    }
+
+                    // Item IS ItemsAdder item
+                    else {
+                        // But other Item is not
+                        if (!itemsAdder.isItemsAdderItem(otherItem)) {
+                            continue;
+                        }
+                        // Both are ItemsAdder items
+                        else {
+                            if (itemsAdder.getItemsAdderName(item).equals(itemsAdder.getItemsAdderName(otherItem))) {
+                                return true;
+                            } else {
+                                continue;
+                            }
+                        }
+                    }
+                } else if (useExecutableItems) {
+                    // Item ist NOT ItemsAdder item
+                    if (!executableItems.isExecutableItem(item)) {
+
+                        // Only return true if otherItem also is NOT ItemsAdder item
+                        if (executableItems.isExecutableItem(otherItem)) {
+                            continue;
+                        } else {
+                            return true;
+                        }
+                    }
+
+                    // Item IS ItemsAdder item
+                    else {
+                        // But other Item is not
+                        if (!executableItems.isExecutableItem(otherItem)) {
+                            continue;
+                        }
+                        // Both are ItemsAdder items
+                        else {
+                            if (executableItems.getExecutableItemsName(item).equals(itemsAdder.getItemsAdderName(otherItem))) {
+                                return true;
+                            } else {
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static void sortBlockListByDistance(List<Block> blocks, Location loc) {
+        blocks.sort((b1, b2) -> {
+            if (b1.getLocation().distance(loc) > b2.getLocation().distance(loc)) {
+                return 1;
+            }
+            return -1;
+        });
+    }
+
+    static Location getCenterOfBlock(Block block) {
+        Location loc = block.getLocation();
+        if (block.getState() instanceof Chest
+                && ((Chest) block.getState()).getInventory().getHolder() instanceof DoubleChest) {
+            DoubleChest doubleChest = (DoubleChest) ((Chest) block.getState()).getInventory().getHolder();
+            DoubleChestInventory doubleChestInv = (DoubleChestInventory) doubleChest.getInventory();
+            loc = doubleChestInv.getLeftSide().getLocation().add(doubleChestInv.getRightSide().getLocation()).multiply(0.5);
+        }
+        loc.add(new Vector(0.5, 1, 0.5));
+        return loc;
+    }
+
+    static int doesChestContainCount(Inventory inv, Material mat) {
+        int count = 0;
+        for (ItemStack item : inv.getContents()) {
+            if (item == null) continue;
+            if (item.getType() == mat) {
+                count += item.getAmount();
+            }
+        }
+        return count;
+    }
 }

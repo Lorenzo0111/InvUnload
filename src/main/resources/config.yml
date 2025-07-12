@@ -185,6 +185,9 @@ force-chestsort: false
 # When enabled, InvUnload will detect custom items from ItemsAdder
 use-itemsadder: true
 
+##### Executable Items #####
+use-executable-items: true
+
 ##########################
 ##### miscellaneous ######
 ##########################
