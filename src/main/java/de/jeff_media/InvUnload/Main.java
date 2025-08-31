@@ -1,10 +1,8 @@
 package de.jeff_media.InvUnload;
 
-import com.jeff_media.jefflib.data.McVersion;
-import com.jeff_media.updatechecker.UpdateCheckSource;
-import com.jeff_media.updatechecker.UpdateChecker;
 import de.jeff_media.InvUnload.Hooks.*;
 import de.jeff_media.InvUnload.utils.EnchantmentUtils;
+import de.jeff_media.InvUnload.utils.EnumUtils;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -46,8 +44,6 @@ public class Main extends JavaPlugin implements Listener {
 	protected InventoryPagesHook inventoryPagesHook;
 	protected Visualizer visualizer;
 	protected GroupUtils groupUtils;
-
-	private UpdateChecker updateChecker;
 
 	CommandUnload commandUnload;
 	CommandUnloadinfo commandUnloadInfo;
@@ -189,11 +185,11 @@ public class Main extends JavaPlugin implements Listener {
 
 		getConfig().addDefault("strict-tabcomplete",true);
 
-		if(McVersion.current().isAtLeast(1,20,6) && getConfig().getString("particle-type","").equalsIgnoreCase("WITCH_SPELL")) {
+		if(getConfig().getString("particle-type","").equalsIgnoreCase("WITCH_SPELL")) {
 			getConfig().set("particle-type","WITCH");
 		}
 
-		if(!McVersion.current().isAtLeast(1,20,6) && getConfig().getString("particle-type","").equalsIgnoreCase("WITCH")) {
+		if(!getConfig().getString("particle-type","").equalsIgnoreCase("WITCH")) {
 			getConfig().set("particle-type","WITCH_SPELL");
 		}
 		
@@ -230,27 +226,6 @@ public class Main extends JavaPlugin implements Listener {
 		getCommand("blacklist").setExecutor(commandBlacklist);
 		getCommand("blacklist").setTabCompleter(commandBlacklist);
 	}
-	
-	private void initUpdateChecker() {
-
-		if(updateChecker != null) updateChecker.stop();
-
-		// Check for updates (async, of course)
-		// When set to true, we check for updates right now, and every X hours (see
-		// updateCheckInterval)
-		updateChecker = new UpdateChecker(this, UpdateCheckSource.CUSTOM_URL,"https://api.jeff-media.com/invunload/latest-version.txt")
-				.suppressUpToDateMessage(true)
-				.setDonationLink("https://paypal.me/mfnalex")
-				.setDownloadLink(60095)
-				.setChangelogLink(60095);
-		if (getConfig().getString("check-for-updates", "true").equalsIgnoreCase("true")) {
-			updateChecker.checkNow().checkEveryXHours(updateCheckInterval);
-
-		} // When set to on-startup, we check right now (delay 0)
-		else if (getConfig().getString("check-for-updates", "true").equalsIgnoreCase("on-startup")) {
-			updateChecker.checkNow();
-		}
-	}
 
 	PlayerSetting getPlayerSetting(Player p) {
 		if(playerSettings.containsKey(p.getUniqueId())) {
@@ -278,13 +253,9 @@ public class Main extends JavaPlugin implements Listener {
 		createConfig();
 		new File(getDataFolder()+File.separator+"playerdata").mkdirs();
 		if(reload) {
-			if (updateChecker != null) {
-				updateChecker.stop();
-			}
 			saveAllPlayerSettings();
 		}
 		messages = new Messages(this);
-		initUpdateChecker();
 		blockUtils = new BlockUtils(this);
 		visualizer = new Visualizer(this);
 		File groupsFile = new File(this.getDataFolder()+File.separator+"groups.yml");

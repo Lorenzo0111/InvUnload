@@ -2,14 +2,15 @@ package de.jeff_media.InvUnload;
 
 import de.jeff_media.InvUnload.Hooks.ExecutableItemsWrapper;
 import de.jeff_media.InvUnload.Hooks.ItemsAdderWrapper;
-import com.jeff_media.jefflib.EnumUtils;
-import org.bukkit.*;
+import de.jeff_media.InvUnload.utils.EnumUtils;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.*;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BlockVector;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
@@ -17,10 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class BlockUtils {
 
@@ -40,7 +37,7 @@ public class BlockUtils {
     static List<Block> findBlocksInRadius(Location loc, int radius) {
         BoundingBox box = BoundingBox.of(loc, radius, radius, radius);
         //List<BlockVector> blocks = de.jeff_media.jefflib.BlockUtils.getBlocks(loc.getWorld(), box, true, blockData -> isChestLikeBlock(blockData.getMaterial()));
-        List<Chunk> chunks = com.jeff_media.jefflib.BlockUtils.getChunks(loc.getWorld(), box, true);
+        List<Chunk> chunks = getChunks(loc.getWorld(), box, true);
         List<Block> blocks = new ArrayList<>();
         for (Chunk chunk : chunks) {
             for (BlockState state : chunk.getTileEntities()) {
@@ -177,5 +174,33 @@ public class BlockUtils {
             }
         }
         return count;
+    }
+
+    /**
+     * Gets all {@link Chunk}s that are inside or intersect the given {@link BoundingBox}
+     *
+     * @param world            World to check for
+     * @param box              BoundingBox to check for
+     * @param onlyLoadedChunks When true, only returns already loaded chunks. When false, this will force load chunks and return those too
+     * @return List of all chunks that are inside or intersect the given BoundingBox
+     *
+     * @author <a href="https://github.com/mfnalex/JeffLib/blob/master/core/src/main/java/com/jeff_media/jefflib/BlockUtils.java">mfnalex</a>
+     */
+    public static List<Chunk> getChunks(final World world, final BoundingBox box, final boolean onlyLoadedChunks) {
+        final int minX = (int) box.getMinX() >> 4;
+        final int maxX = (int) box.getMaxX() >> 4;
+        final int minZ = (int) box.getMinZ() >> 4;
+        final int maxZ = (int) box.getMaxZ() >> 4;
+
+        final List<Chunk> chunks = new ArrayList<>();
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                if (!onlyLoadedChunks || world.isChunkLoaded(x, z)) {
+                    final Chunk chunk = world.getChunkAt(x, z);
+                    chunks.add(chunk);
+                }
+            }
+        }
+        return chunks;
     }
 }

@@ -47,10 +47,6 @@
 				<configuration>
 					<relocations>
 						<relocation>
-							<pattern>com.jeff_media.updatechecker</pattern>
-							<shadedPattern>de.jeff_media.InvUnload.updatechecker</shadedPattern>
-						</relocation>
-						<relocation>
 							<pattern>org.bstats</pattern>
 							<shadedPattern>de.jeff_media.InvUnload</shadedPattern>
 						</relocation>
@@ -78,6 +74,10 @@
 	</build>
 
 	<repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
 		<repository>
 			<id>spigot-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -93,11 +93,6 @@
 			<url>https://maven.enginehub.org/repo/</url>
 		</repository>
 		<repository>
-			<id>jeff-media-public</id>
-			<name>JEFF Media GbR Repository</name>
-			<url>https://repo.jeff-media.com/public</url>
-		</repository>
-		<repository>
 			<id>pcgf-repo</id>
 			<url>https://repo.pcgamingfreaks.at/repository/maven-everything</url>
 		</repository>
@@ -105,10 +100,10 @@
 			<id>CodeMC</id>
 			<url>https://repo.codemc.org/repository/maven-public</url>
 		</repository>
-		<repository>
-			<id>placeholderapi</id>
-			<url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
-		</repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/releases/</url>
+        </repository>
 		<repository>
 			<id>papermc</id>
 			<url>https://repo.papermc.io/repository/maven-public/</url>
@@ -168,12 +163,6 @@
 			<version>1.18.24</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.jeff-media.jefflib</groupId>
-			<artifactId>jefflib</artifactId>
-			<version>14.2.3</version>
-			<scope>compile</scope>
-		</dependency>
 		<!--<dependency>
 			<groupId>org.jetbrains</groupId>
 			<artifactId>annotations</artifactId>
@@ -181,16 +170,11 @@
 			<scope>provided</scope>
 		</dependency>-->
 		<dependency>
-			<groupId>com.jeff_media</groupId>
-			<artifactId>SpigotUpdateChecker</artifactId>
-			<version>2.1.1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>de.jeff_media</groupId>
 			<artifactId>ChestSortAPI</artifactId>
-			<version>12.0.0</version>
-			<scope>provided</scope>
+			<version>14.2.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/ChestSort.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.intellectualsites.plotsquared</groupId>
